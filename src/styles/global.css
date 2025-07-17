@@ -7,8 +7,7 @@
     Geist, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --font-mono:
-    Geist Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace;
+    'Geist Mono', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -35,22 +34,6 @@
   --color-ring: var(--ring);
 }
 
-@font-face {
-  font-family: 'Geist';
-  src: url('/fonts/GeistVF.woff2') format('woff2-variations');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Geist Mono';
-  src: url('/fonts/GeistMonoVF.woff2') format('woff2-variations');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -68,8 +51,8 @@
 }
 
 [data-theme='dark'] {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
+  --background: oklch(19.298% 0.017 252.603);
+  --foreground: oklch(92.571% 0.00106 11.689);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
@@ -91,4 +74,10 @@
   ::file-selector-button {
     @apply border-border outline-ring/50 tracking-tight;
   }
+}
+
+/* Override prose styles for code blocks to disable vertical scroll */
+.prose :where(pre):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  max-height: none !important;
+  overflow-y: visible !important;
 }
