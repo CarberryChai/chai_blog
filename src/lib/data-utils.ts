@@ -163,7 +163,7 @@ export function groupPostsByYear(
   return posts.reduce(
     (acc: Record<string, CollectionEntry<'blog'>[]>, post) => {
       const year = post.data.date.getFullYear().toString()
-      ;(acc[year] ??= []).push(post)
+        ; (acc[year] ??= []).push(post)
       return acc
     },
     {},
@@ -222,26 +222,25 @@ export async function getSubpostCount(parentId: string): Promise<number> {
 
 export async function getCombinedReadingTime(postId: string): Promise<string> {
   const post = await getPostById(postId)
-  if (!post) return readingTime(0)
+  if (!post) return readingTime(null)
 
-  let totalWords = calculateWordCountFromHtml(post.body)
+  let combinedHtml = post.body
 
   if (!isSubpost(postId)) {
     const subposts = await getSubpostsForParent(postId)
     for (const subpost of subposts) {
-      totalWords += calculateWordCountFromHtml(subpost.body)
+      combinedHtml += '\n' + subpost.body
     }
   }
 
-  return readingTime(totalWords)
+  return readingTime(combinedHtml)
 }
 
 export async function getPostReadingTime(postId: string): Promise<string> {
   const post = await getPostById(postId)
-  if (!post) return readingTime(0)
+  if (!post) return readingTime(null)
 
-  const wordCount = calculateWordCountFromHtml(post.body)
-  return readingTime(wordCount)
+  return readingTime(post.body)
 }
 
 export type TOCHeading = {
