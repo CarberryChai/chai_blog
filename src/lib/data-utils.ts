@@ -1,5 +1,5 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content'
-import { readingTime, calculateWordCountFromHtml } from '@/lib/utils'
+import { readingTime } from '@/lib/utils'
 
 export async function getAllAuthors(): Promise<CollectionEntry<'authors'>[]> {
   return await getCollection('authors')
@@ -49,7 +49,6 @@ export async function getAdjacentPosts(currentId: string): Promise<{
 
   if (isSubpost(currentId)) {
     const parentId = getParentId(currentId)
-    const allPosts = await getAllPosts()
     const parent = allPosts.find((post) => post.id === parentId) || null
 
     const posts = await getCollection('blog')
@@ -163,7 +162,8 @@ export function groupPostsByYear(
   return posts.reduce(
     (acc: Record<string, CollectionEntry<'blog'>[]>, post) => {
       const year = post.data.date.getFullYear().toString()
-        ; (acc[year] ??= []).push(post)
+      if (!acc[year]) acc[year] = []
+      acc[year].push(post)
       return acc
     },
     {},

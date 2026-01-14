@@ -1,8 +1,6 @@
 ---
-import { Image } from 'astro:assets'
-import { render } from 'astro:content'
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
-import Giscus from '@/components/Giscus.astro';
+import Giscus from '@/components/Giscus.astro'
 import Link from '@/components/Link.astro'
 import PostHead from '@/components/PostHead.astro'
 import SubpostsSidebar from '@/components/SubpostsSidebar.astro'
@@ -24,6 +22,8 @@ import {
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
+import { Image } from 'astro:assets'
+import { render } from 'astro:content'
 
 export async function getStaticPaths() {
   const posts = await getAllPostsAndSubposts()
@@ -192,16 +192,16 @@ const isProd = import.meta.env.PROD
           }
         </div>
       </div>
-
-      
     </section>
 
-    <article class="prose col-start-2 max-w-none">
-      <Content />
-    </article>
+    <div class="glass-card col-start-2 p-6 sm:p-8">
+      <article class="prose max-w-none">
+        <Content />
+      </article>
+    </div>
 
     <div class="col-start-2">
-      {isProd && (<Giscus />)}
+      {isProd && <Giscus />}
     </div>
 
     {
@@ -214,14 +214,12 @@ const isProd = import.meta.env.PROD
         />
       )
     }
-
-    
   </section>
 
   <Button
     variant="outline"
     size="icon"
-    className="group fixed right-8 bottom-8 z-50 hidden"
+    className="group fixed right-8 bottom-8 z-50 hidden cursor-pointer"
     id="scroll-to-top"
     title="Scroll to top"
     aria-label="Scroll to top"
@@ -233,16 +231,29 @@ const isProd = import.meta.env.PROD
   </Button>
 
   <script>
+    import { throttle } from '@/lib/utils'
+
+    // Store cleanup function to remove event listeners
+    let cleanupScrollListeners: (() => void) | null = null
+
     document.addEventListener('astro:page-load', () => {
+      // Clean up previous listeners before adding new ones
+      if (cleanupScrollListeners) {
+        cleanupScrollListeners()
+        cleanupScrollListeners = null
+      }
+
       const scrollToTopButton = document.getElementById('scroll-to-top')
       const footer = document.querySelector('footer')
 
       if (scrollToTopButton && footer) {
-        scrollToTopButton.addEventListener('click', () => {
+        // Click handler
+        const handleClick = () => {
           window.scrollTo({ top: 0, behavior: 'smooth' })
-        })
+        }
 
-        window.addEventListener('scroll', () => {
+        // Scroll handler with throttling (max once per 100ms)
+        const handleScroll = throttle(() => {
           const footerRect = footer.getBoundingClientRect()
           const isFooterVisible = footerRect.top <= window.innerHeight
 
@@ -250,7 +261,25 @@ const isProd = import.meta.env.PROD
             'hidden',
             window.scrollY <= 300 || isFooterVisible,
           )
-        })
+        }, 100)
+
+        // Add event listeners
+        scrollToTopButton.addEventListener('click', handleClick)
+        window.addEventListener('scroll', handleScroll, { passive: true })
+
+        // Store cleanup function
+        cleanupScrollListeners = () => {
+          scrollToTopButton.removeEventListener('click', handleClick)
+          window.removeEventListener('scroll', handleScroll)
+        }
+      }
+    })
+
+    // Clean up on page unload (for View Transitions)
+    document.addEventListener('astro:before-preparation', () => {
+      if (cleanupScrollListeners) {
+        cleanupScrollListeners()
+        cleanupScrollListeners = null
       }
     })
   </script>
