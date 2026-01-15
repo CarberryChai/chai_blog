@@ -42,21 +42,21 @@
 	/* Base colors - soft purple/blue tint for light mode */
 	--background: oklch(0.98 0.01 280);
 	--foreground: oklch(0.15 0.02 280);
-	
+
 	--primary: oklch(0.45 0.15 280);
 	--primary-foreground: oklch(0.98 0 0);
-	
+
 	--secondary: oklch(0.95 0.02 280 / 70%);
 	--secondary-foreground: oklch(0.25 0.02 280);
-	
+
 	--muted: oklch(0.94 0.01 280 / 60%);
 	--muted-foreground: oklch(0.45 0.02 280);
-	
+
 	--accent: oklch(0.92 0.03 280 / 70%);
 	--accent-foreground: oklch(0.25 0.02 280);
-	
+
 	--destructive: oklch(0.577 0.245 27.325);
-	
+
 	--border: oklch(0.85 0.02 280 / 40%);
 	--ring: oklch(0.55 0.12 280);
 
@@ -71,34 +71,35 @@
 [data-theme="dark"] {
 	/* Base colors - deep blue/purple for dark mode */
 	--background: oklch(0.14 0.03 280);
-	--foreground: oklch(0.93 0.01 280);
-	
+	--foreground: oklch(0.95 0.01 280);
+
 	--primary: oklch(0.85 0.1 280);
 	--primary-foreground: oklch(0.15 0.02 280);
-	
-	--secondary: oklch(0.22 0.03 280 / 60%);
-	--secondary-foreground: oklch(0.92 0.01 280);
-	
-	--muted: oklch(0.25 0.02 280 / 50%);
-	--muted-foreground: oklch(0.65 0.02 280);
-	
-	--accent: oklch(0.28 0.04 280 / 60%);
-	--accent-foreground: oklch(0.92 0.01 280);
-	
+
+	--secondary: oklch(0.24 0.03 280 / 65%);
+	--secondary-foreground: oklch(0.94 0.01 280);
+
+	--muted: oklch(0.28 0.02 280 / 55%);
+	--muted-foreground: oklch(0.72 0.02 280);
+
+	--accent: oklch(0.30 0.04 280 / 65%);
+	--accent-foreground: oklch(0.94 0.01 280);
+
 	--destructive: oklch(0.704 0.191 22.216);
-	
-	--border: oklch(1 0 0 / 12%);
+
+	--border: oklch(1 0 0 / 15%);
 	--ring: oklch(0.65 0.1 280);
 
 	/* Glass effect - darker, more subtle */
-	--glass: oklch(0.2 0.02 280 / 45%);
-	--glass-border: oklch(1 0 0 / 15%);
-	--glass-highlight: oklch(1 0 0 / 8%);
+	--glass: oklch(0.2 0.02 280 / 50%);
+	--glass-border: oklch(1 0 0 / 18%);
+	--glass-highlight: oklch(1 0 0 / 10%);
 	--glass-blur: 24px;
 	--glass-saturate: 1.5;
 }
 
 @layer base {
+
 	*,
 	::after,
 	::before,
@@ -112,9 +113,13 @@
 		overflow-y: visible !important;
 	}
 
+	.prose p {
+		@apply pt-4;
+	}
+
 	/* Background gradient mesh for glass effect */
 	body {
-		background: 
+		background:
 			radial-gradient(ellipse 80% 50% at 20% -10%, oklch(0.85 0.15 300 / 25%), transparent),
 			radial-gradient(ellipse 60% 40% at 80% 10%, oklch(0.85 0.12 220 / 20%), transparent),
 			radial-gradient(ellipse 50% 30% at 10% 60%, oklch(0.88 0.1 180 / 15%), transparent),
@@ -122,10 +127,82 @@
 	}
 
 	[data-theme="dark"] body {
-		background: 
+		background:
 			radial-gradient(ellipse 80% 50% at 20% -10%, oklch(0.35 0.15 300 / 30%), transparent),
 			radial-gradient(ellipse 60% 40% at 80% 10%, oklch(0.3 0.12 220 / 25%), transparent),
 			radial-gradient(ellipse 50% 30% at 10% 60%, oklch(0.25 0.1 180 / 20%), transparent),
 			var(--background);
+	}
+}
+
+/* Animation utilities */
+@layer utilities {
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes slide-up {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes pulse-glow {
+
+		0%,
+		100% {
+			box-shadow: 0 0 40px -10px oklch(0.6 0.2 280 / 40%);
+		}
+
+		50% {
+			box-shadow: 0 0 50px -5px oklch(0.7 0.25 280 / 50%);
+		}
+	}
+
+	.animate-fade-in {
+		animation: fade-in 0.5s ease-out forwards;
+	}
+
+	.animate-slide-up {
+		animation: slide-up 0.6s ease-out forwards;
+	}
+
+	.animate-pulse-glow {
+		animation: pulse-glow 3s ease-in-out infinite;
+	}
+
+	/* Staggered animation delays for lists */
+	.stagger-1 {
+		animation-delay: 0.1s;
+	}
+
+	.stagger-2 {
+		animation-delay: 0.2s;
+	}
+
+	.stagger-3 {
+		animation-delay: 0.3s;
+	}
+
+	.stagger-4 {
+		animation-delay: 0.4s;
+	}
+
+	.stagger-5 {
+		animation-delay: 0.5s;
 	}
 }
