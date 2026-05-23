@@ -1,14 +1,12 @@
 ---
 import { badgeVariants } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import {
   getCombinedReadingTime,
   getSubpostCount,
   isSubpost,
 } from '@/lib/data-utils'
-import { formatDate } from '@/lib/utils'
+import { calculateReadingStats, formatDate } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
-import { Image } from 'astro:assets'
 import type { CollectionEntry } from 'astro:content'
 import Link from './Link.astro'
 
@@ -20,66 +18,66 @@ const { entry } = Astro.props
 const formattedDate = formatDate(entry.data.date)
 const readTime = await getCombinedReadingTime(entry.id)
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
+
+const wordStats = calculateReadingStats(entry.body)
+const wordCountStr =
+  wordStats.totalCount >= 1000
+    ? `${(wordStats.totalCount / 1000).toFixed(1)}k`
+    : String(wordStats.totalCount)
 ---
 
-<div class="glass-card p-4">
+<div class="glass-card group relative px-6 py-4">
   <Link
     href={`/${entry.collection}/${entry.id}`}
-    class="flex flex-col gap-4 sm:flex-row"
+    class="block"
   >
+    <h3 class="mb-1.5 text-lg font-medium leading-snug">
+      {entry.data.title}
+    </h3>
     {
-      entry.data.image && (
-        <div class="max-w-3xs sm:shrink-0">
-          <Image
-            src={entry.data.image}
-            alt={entry.data.title}
-            width={1200}
-            height={630}
-            class="object-cover"
-          />
-        </div>
+      entry.data.description && (
+        <p class="text-muted-foreground mb-2 text-sm leading-relaxed">
+          {entry.data.description}
+        </p>
       )
     }
 
-    <div class="grow">
-      <h3 class="mb-1 text-lg font-medium">{entry.data.title}</h3>
-      <p class="text-muted-foreground mb-2 text-sm">{entry.data.description}</p>
-
-      <div
-        class="text-muted-foreground mb-2 flex flex-wrap items-center gap-x-2 text-xs"
-      >
-        <span>{formattedDate}</span>
-        <Separator orientation="vertical" className="h-4!" />
-        <span>{readTime}</span>
-        {
-          subpostCount > 0 && (
-            <>
-              <Separator orientation="vertical" className="h-4!" />
-              <span class="flex items-center gap-1">
-                <Icon name="lucide:file-text" class="size-3" />
-                {subpostCount} subpost{subpostCount === 1 ? '' : 's'}
-              </span>
-            </>
-          )
-        }
-      </div>
-
+    <div
+      class="text-muted-foreground flex flex-wrap items-center gap-x-1.5 text-xs"
+    >
+      <span>{formattedDate}</span>
+      <span aria-hidden="true">·</span>
+      <span>{wordCountStr} 字</span>
+      <span aria-hidden="true">·</span>
+      <span>{readTime}</span>
       {
-        entry.data.tags && (
-          <div class="relative z-10 flex flex-wrap gap-2">
-            {entry.data.tags.map((tag) => (
-              <a
-                href={`/tags/${tag}`}
-                class={badgeVariants({ variant: 'secondary' }) +
-                  ' inline-flex items-center gap-x-1'}
-              >
-                <Icon name="lucide:hash" class="size-3" />
-                {tag}
-              </a>
-            ))}
-          </div>
+        subpostCount > 0 && (
+          <>
+            <span aria-hidden="true">·</span>
+            <span class="flex items-center gap-0.5">
+              <Icon name="lucide:file-text" class="size-3" />
+              {subpostCount} 篇
+            </span>
+          </>
         )
       }
     </div>
   </Link>
+
+  {
+    entry.data.tags && entry.data.tags.length > 0 && (
+      <div class="relative z-10 mt-2.5 flex flex-wrap gap-1.5">
+        {entry.data.tags.map((tag) => (
+          <a
+            href={`/tags/${tag}`}
+            class={badgeVariants({ variant: 'secondary' }) +
+              ' inline-flex items-center gap-x-1 text-xs'}
+          >
+            <Icon name="lucide:hash" class="size-3" />
+            {tag}
+          </a>
+        ))}
+      </div>
+    )
+  }
 </div>
