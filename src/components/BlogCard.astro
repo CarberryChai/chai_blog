@@ -1,5 +1,5 @@
 ---
-import { Badge } from '@/components/ui/badge'
+import { badgeVariants } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
   getCombinedReadingTime,
@@ -66,12 +66,16 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
 
       {
         entry.data.tags && (
-          <div class="flex flex-wrap gap-2">
+          <div class="relative z-10 flex flex-wrap gap-2">
             {entry.data.tags.map((tag) => (
-              <Badge variant="secondary" className="flex items-center gap-x-1">
+              <a
+                href={`/tags/${tag}`}
+                class={badgeVariants({ variant: 'secondary' }) +
+                  ' inline-flex items-center gap-x-1'}
+              >
                 <Icon name="lucide:hash" class="size-3" />
                 {tag}
-              </Badge>
+              </a>
             ))}
           </div>
         )

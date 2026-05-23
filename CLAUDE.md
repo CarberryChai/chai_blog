@@ -78,12 +78,6 @@ The blog uses Astro Content Collections for type-safe content management:
    - Fields: title, description, date, order, image, tags, authors, draft
    - Example: `src/content/blog/the_person_looks_promising/`
 
-2. **authors** (`src/content/authors/`): Author profiles
-   - Fields: name, pronouns, avatar, bio, mail, website, twitter, github, linkedin, discord
-
-3. **projects** (`src/content/projects/`): Project showcases
-   - Fields: name, description, tags, image, link, startDate, endDate
-
 ### Component System
 
 - **UI Components** (`src/components/ui/`): Built with Radix UI primitives, styled with Tailwind
@@ -113,7 +107,6 @@ Astro uses file-based routing:
 From `astro.config.ts`:
 - Development server: port 1234, host enabled
 - DevToolbar: disabled
-- Site URL: `https://astro-erudite.vercel.app`
 
 ## Development Notes
 

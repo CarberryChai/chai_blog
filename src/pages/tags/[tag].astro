@@ -13,11 +13,8 @@ export async function getStaticPaths() {
     uniqueTags.map(async (tag) => {
       const posts = await getPostsByTag(tag)
       return {
-        params: { id: tag },
-        props: {
-          tag,
-          posts,
-        },
+        params: { tag },
+        props: { tag, posts },
       }
     }),
   )
