@@ -1,6 +1,5 @@
 ---
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
-import Giscus from '@/components/Giscus.astro'
 import PostHead from '@/components/PostHead.astro'
 import SubpostsSidebar from '@/components/SubpostsSidebar.astro'
 import { badgeVariants } from '@/components/ui/badge'
@@ -46,7 +45,6 @@ const combinedReadingTime =
     ? await getCombinedReadingTime(currentPostId)
     : null
 
-const isProd = import.meta.env.PROD
 ---
 
 <Layout>
@@ -161,10 +159,6 @@ const isProd = import.meta.env.PROD
       <article class="prose max-w-none">
         <Content />
       </article>
-    </div>
-
-    <div class="col-start-2">
-      {isProd && <Giscus />}
     </div>
 
     {
