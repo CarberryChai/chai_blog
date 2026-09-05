@@ -3,7 +3,7 @@ import type { IconMap, Site, SocialLink } from '@/types'
 export const SITE: Site = {
   title: 'XiaoChai',
   description: '个人博客，记录生活中的点滴，分享编程和技术的经验。',
-  href: 'https://astro-erudite.vercel.app',
+  href: 'https://chai-blog.pages.dev',
   author: 'Chai',
   locale: 'zh-CN',
   featuredPostCount: 2,
