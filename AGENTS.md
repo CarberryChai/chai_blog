@@ -1,17 +1,15 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# xiaochai-blog guidance
 
 ## Project Overview
 
 This is **XiaoChai Blog** - a modern Astro-based personal blog featuring:
-- Astro 5.7+ with React components and TypeScript
+- Astro 7.x with React components and TypeScript
 - Content Collections (blog posts, authors, projects) with MDX support
 - Tailwind CSS 4.x with custom design system
 - Expressive Code for syntax highlighting with Material Theme Palenight
 - KaTeX for math rendering
 - Giscus comments integration
-- Vercel deployment ready
+- Cloudflare Pages deployment ready
 
 ## Development Commands
 
@@ -159,4 +157,9 @@ The build command runs `astro check` before building to ensure type safety. Type
 
 ## Deployment
 
-Configured for Vercel deployment. Set `site` in astro.config.ts to production URL.
+Deployed to Cloudflare Pages as a static site (Astro output: `static`, build output directory: `dist`).
+
+- Build command: `npm run build` (runs `astro check` then `astro build`)
+- Output directory: `dist`
+- Node.js version: pinned via `.nvmrc` (`22.12.0`, required by Astro 7). Cloudflare Pages reads `.nvmrc` (or `.node-version`, or the `NODE_VERSION` environment variable); use an exact version, not aliases like `lts/*`.
+- Set `site` in astro.config.ts to the production URL (currently `https://astro-erudite.vercel.app` — update to the Cloudflare Pages domain).
