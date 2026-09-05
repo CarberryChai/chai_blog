@@ -27,6 +27,10 @@ npm run preview
 npm run prettier
 ```
 
+## Git Workflow
+
+- After completing any code change, commit it using the git-commit skill (conventional commits, one logical change per commit).
+
 ## Code Architecture
 
 ### Directory Structure
