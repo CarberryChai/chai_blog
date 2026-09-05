@@ -5,7 +5,7 @@ import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
 import icon from 'astro-icon'
 
-import { rehypeHeadingIds } from '@astrojs/markdown-remark'
+import { rehypeHeadingIds, unified } from '@astrojs/markdown-remark'
 import expressiveCode from 'astro-expressive-code'
 import { createInlineSvgUrl } from '@expressive-code/core'
 import rehypeDocument from 'rehype-document'
@@ -53,24 +53,26 @@ export default defineConfig({
     enabled: false,
   },
   markdown: {
+    processor: unified({
+      rehypePlugins: [
+        [
+          rehypeDocument,
+          {
+            css: 'https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css',
+          },
+        ],
+        [
+          rehypeExternalLinks,
+          {
+            target: '_blank',
+            rel: ['nofollow', 'noreferrer', 'noopener'],
+          },
+        ],
+        rehypeHeadingIds,
+        rehypeKatex,
+      ],
+      remarkPlugins: [remarkMath, remarkEmoji],
+    }),
     syntaxHighlight: false,
-    rehypePlugins: [
-      [
-        rehypeDocument,
-        {
-          css: 'https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css',
-        },
-      ],
-      [
-        rehypeExternalLinks,
-        {
-          target: '_blank',
-          rel: ['nofollow', 'noreferrer', 'noopener'],
-        },
-      ],
-      rehypeHeadingIds,
-      rehypeKatex,
-    ],
-    remarkPlugins: [remarkMath, remarkEmoji],
   },
 })
