@@ -50,4 +50,40 @@ $ cargo build
 
 ## 小结
 
-Cargo 把 Rust 项目从"手工编译 + 手工管理依赖"变成"声明依赖 + 统一命令 + 可重复构建"的工程化状态。下一篇我们动手安装 Cargo、创建第一个项目。
+Cargo 把 Rust 项目从"手工编译 + 手工管理依赖"变成"声明依赖 + 统一命令 + 可重复构建"的工程化状态。接下来我们看看 Cargo 项目的标准目录结构（package layout）。
+
+## Package Layout：目录约定
+
+Cargo 用一套**约定**安排文件位置，让新人看到一个项目就能快速上手。一个标准 Cargo 项目长这样：
+
+```text
+.
+├── Cargo.toml
+├── Cargo.lock
+├── src/
+│   ├── main.rs      # 默认可执行程序入口
+│   ├── lib.rs       # 默认库文件入口
+│   └── bin/         # 其他可执行程序
+├── benches/         # 基准测试
+├── examples/        # 示例
+└── tests/           # 集成测试
+```
+
+几个要点：
+
+- `Cargo.toml` 和 `Cargo.lock` 放在项目根目录（package root）。
+- 源代码放在 `src/` 目录。
+- 默认库文件是 `src/lib.rs`，默认可执行文件是 `src/main.rs`，其他可执行程序放 `src/bin/`。
+- 基准测试放 `benches/`，示例放 `examples/`，集成测试放 `tests/`。
+
+如果某个目标（可执行程序、示例、基准或集成测试）由多个文件组成，就在对应目录下建一个子目录，里面放 `main.rs` 和其他模块，目标的名字就是子目录名：
+
+```text
+src/bin/my-tool/
+├── main.rs
+└── some_module.rs
+```
+
+命名也有约定：目标用 **kebab-case**（如 `my-tool.rs`），模块用 **snake_case**（如 `some_module.rs`）。
+
+这些约定正是 Cargo 四件事里的第四件——**Cargo 会自动发现所有目标，不需要你写配置文件告诉它每个文件在哪。** 记住一个目录结构，所有 Cargo 项目就都认识了。
