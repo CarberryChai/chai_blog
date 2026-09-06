@@ -48,9 +48,111 @@ $ cargo build
 
 所以并不夸张地说：学会构建一个 Cargo 项目，就学会了构建所有 Cargo 项目。
 
-## 小结
+### 小结
 
-Cargo 把 Rust 项目从"手工编译 + 手工管理依赖"变成"声明依赖 + 统一命令 + 可重复构建"的工程化状态。接下来我们看看 Cargo 项目的标准目录结构（package layout）。
+Cargo 把 Rust 项目从"手工编译 + 手工管理依赖"变成"声明依赖 + 统一命令 + 可重复构建"的工程化状态。接下来我们动手：安装 Cargo，创建第一个项目。
+
+## 安装 Cargo
+
+Cargo 随 Rust 一起安装，不需要单独装。官方推荐用 **rustup** 安装 Rust：
+
+```console
+$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+装好后运行 `rustc --version` 和 `cargo --version`，能看到版本号就说明安装成功。
+
+rustup 负责管理 Rust 工具链和版本，以后升级就运行 `rustup update`。
+
+## 创建第一个项目
+
+用 `cargo new` 创建：
+
+```console
+$ cargo new hello_world --bin
+$ cd hello_world
+```
+
+`--bin` 表示创建二进制程序（可执行文件）；创建库用 `--lib`，不传时默认 `--bin`。另外 `cargo new` 默认会初始化一个 git 仓库，不想要可以加 `--vcs none`。如果代码已经在一个目录里，用 `cargo init` 初始化（它不会新建目录）。
+
+生成的结构：
+
+```text
+.
+├── Cargo.toml
+└── src
+    └── main.rs
+```
+
+`Cargo.toml` 是包的 **manifest（清单）**，TOML 格式，Cargo 编译所需的所有元数据都在里面：
+
+```toml
+[package]
+name = "hello_world"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+```
+
+- `name` / `version`：包名和版本（semver）
+- `edition`：使用的 Rust 版本规范（2024 是目前最新），影响语法和行为，保持默认即可
+- `[dependencies]`：依赖列表，下面会讲
+
+`src/main.rs` 里是 Cargo 生成的 hello world 程序。
+
+## 构建与运行
+
+```console
+$ cargo build
+$ cargo run
+```
+
+- `cargo build`：编译，产物在 `target/debug/`
+- `cargo run`：编译并运行，一步到位
+- `cargo check`：只做类型检查、不生成产物，比 build 快，改完代码想快速验证时最常用
+- `cargo build --release`：带优化编译，产物在 `target/release/`，发布时用
+
+debug 模式编译快但运行慢；release 模式编译慢但运行快。开发时用默认的 debug，发布用 `--release`。
+
+## 依赖管理
+
+Cargo 默认从 **crates.io**（Rust 社区的中心 registry）拉取依赖。添加依赖推荐用 `cargo add`：
+
+```console
+$ cargo add serde
+```
+
+它会自动把合适的版本写进 `[dependencies]` 并更新 `Cargo.lock`。也可以手写：
+
+```toml
+[dependencies]
+serde = "1.0"
+```
+
+版本字符串是 semver 版本要求：`"1.0"` 表示 `>=1.0.0` 且 `<2.0.0` 的任意版本（默认 `^` 语义）。重新 `cargo build` 时，Cargo 会拉取依赖以及它们的传递依赖。
+
+想升级依赖时用：
+
+```console
+$ cargo update        # 更新所有依赖
+$ cargo update serde  # 只更新 serde
+```
+
+另外还有 `[dev-dependencies]`：只在测试、示例和基准中可用的依赖，正常构建不会引入。
+
+## Cargo.toml vs Cargo.lock
+
+这两个文件分工不同：
+
+- `Cargo.toml`：**你写的**，宽泛声明依赖（如 `serde = "1.0"`）。
+- `Cargo.lock`：**Cargo 维护的**，记录所有依赖的精确版本和来源，不要手动改。
+
+为什么需要 lock？`serde = "1.0"` 今天可能解析到 1.0.x，明天解析到另一个版本，别人 clone 后构建结果就不同了。`Cargo.lock` 把解析结果固定下来，这正是第一节说的"可重复构建"。
+
+所以**把 `Cargo.lock` 提交进版本控制**（比如 git）。想升级时运行 `cargo update`，Cargo 会重新解析并写回 lock。
+
+（库项目发布到 crates.io 时 `Cargo.lock` 不会随包发布，由使用方自己解析；但开发仓库中提交它依然是推荐做法。）
 
 ## Package Layout：目录约定
 
@@ -87,6 +189,27 @@ src/bin/my-tool/
 命名也有约定：目标用 **kebab-case**（如 `my-tool.rs`），模块用 **snake_case**（如 `some_module.rs`）。
 
 这些约定正是 Cargo 四件事里的第四件——**Cargo 会自动发现所有目标，不需要你写配置文件告诉它每个文件在哪。** 记住一个目录结构，所有 Cargo 项目就都认识了。
+
+## 测试
+
+测试函数用 `#[test]` 标注，`cargo test` 运行它们：
+
+```rust
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_works() {
+        assert_eq!(2 + 2, 4);
+    }
+}
+```
+
+Cargo 在两类地方找测试：
+
+- `src/` 里的**单元测试**（如上面的 `#[cfg(test)]` 模块，随 crate 一起编译）
+- `tests/` 目录里的**集成测试**（把 crate 当外部库使用，需要 `use` 导入）
+
+`cargo test foo` 只运行名字里含 `foo` 的测试。另外 `cargo test` 还会编译 `examples/` 里的示例，并运行文档注释中的代码示例（doctest）。
 
 ## Workspace：把多个包放在一起管理
 
@@ -165,3 +288,11 @@ authors.workspace = true
 ```
 
 依赖也可以用同样的方式在 `workspace.dependencies` 中统一管理，保证所有成员用同一个版本。
+
+## 常用工具
+
+Rust 生态里还有三个高频的 cargo 子命令：
+
+- `cargo fmt`：按 rustfmt 标准格式化代码
+- `cargo clippy`：linter，检查常见错误和坏味道，比编译器更严格
+- `cargo doc`：从文档注释生成 HTML 文档（输出到 `target/doc/`）
