@@ -87,3 +87,81 @@ src/bin/my-tool/
 命名也有约定：目标用 **kebab-case**（如 `my-tool.rs`），模块用 **snake_case**（如 `some_module.rs`）。
 
 这些约定正是 Cargo 四件事里的第四件——**Cargo 会自动发现所有目标，不需要你写配置文件告诉它每个文件在哪。** 记住一个目录结构，所有 Cargo 项目就都认识了。
+
+## Workspace：把多个包放在一起管理
+
+前面说的都是一个项目一个包。当你有多个彼此相关的包——比如一个库加上一个命令行工具——分开管理会很麻烦：每个包都有自己的 `Cargo.lock` 和 `target/`，依赖版本还得手动对齐。
+
+**Workspace（工作区）就是一组放在一起管理的包**，成员（workspace members）之间共享：
+
+- 同一个 `Cargo.lock` 和输出目录 `target/`，都在 workspace 根目录
+- 一次对全体成员执行命令，如 `cargo build --workspace`
+- 共享元数据：`workspace.package`、`workspace.dependencies` 等
+- `[patch]`、`[replace]`、`[profile]` 只在根 `Cargo.toml` 中生效
+
+### 创建一个 workspace
+
+在 `Cargo.toml` 里加上 `[workspace]` 表即可。有两种形式：
+
+**1. 根包 workspace**：给一个已有 `[package]` 的 `Cargo.toml` 加 `[workspace]`，这个包就是根包（root package）：
+
+```toml
+[workspace]
+
+[package]
+name = "hello_world"
+version = "0.1.0"
+```
+
+**2. 虚拟 workspace**：`Cargo.toml` 只有 `[workspace]` 没有 `[package]`，适合没有"主包"、或者想把所有包放进子目录的情况：
+
+```toml
+# 根目录 Cargo.toml
+[workspace]
+members = ["hello_world"]
+resolver = "3"
+```
+
+```toml
+# hello_world/Cargo.toml
+[package]
+name = "hello_world"
+version = "0.1.0"
+edition = "2024"
+```
+
+注意：虚拟 workspace 没有 `package.edition` 可以推断，所以 `resolver` 必须显式设置。
+
+### 成员怎么定
+
+- `members` 列出要包含的目录，支持 glob（如 `crates/*`）
+- `exclude` 排除目录
+- workspace 目录内的所有 **path 依赖** 会自动成为成员
+
+### 命令作用于哪些包
+
+在 workspace 中，`cargo build` 默认只操作当前目录所在的包；`cargo build --workspace` 操作全部成员；`cargo build -p foo` 指定单个包。在 workspace 根目录执行时，默认作用于 `default-members`（未指定时，虚拟 workspace 默认全部成员）。
+
+### 共享包元数据
+
+如果所有成员用同一套 `version`、`authors`，可以在根 `Cargo.toml` 定义一次，成员用 `*.workspace = true` 继承：
+
+```toml
+# 根目录 Cargo.toml
+[workspace]
+members = ["bar"]
+
+[workspace.package]
+version = "1.2.3"
+authors = ["Nice Folks"]
+```
+
+```toml
+# bar/Cargo.toml
+[package]
+name = "bar"
+version.workspace = true
+authors.workspace = true
+```
+
+依赖也可以用同样的方式在 `workspace.dependencies` 中统一管理，保证所有成员用同一个版本。
