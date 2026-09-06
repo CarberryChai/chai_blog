@@ -1,5 +1,8 @@
 @reference './global.css';
 
+/* Declare cascade layer order before any @layer block: later layers win. */
+@layer properties, theme, base, components, utilities;
+
 @layer base {
 
   p,

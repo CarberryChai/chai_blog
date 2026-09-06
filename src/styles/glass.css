@@ -2,6 +2,9 @@
 
 /* iOS26 Glassmorphism Utilities */
 
+/* Declare cascade layer order before any @layer block: later layers win. */
+@layer properties, theme, base, components, utilities;
+
 @layer components {
 
     /* Base glass effect */
